@@ -195,6 +195,7 @@ class Preprocessing_Pipline():
         self.scaler = None 
         self.lable_encoder_season = None 
         self.lable_encoder_store = None    
+        self.high_dist_threshold = None 
 
     def __comput_outliayer_limts(self, df:pd.DataFrame): 
         limits = {}
@@ -315,8 +316,8 @@ class Preprocessing_Pipline():
         )) 
 
         # Highlight long-haul trips (top 15% distance threshold)
-        high_dist_threshold = df[fenum.LOG_DISTANCE.value].quantile(high_dist_thresholdq)
-        df[fenum.IS_LONG_HAUL.value] = (df[fenum.LOG_DISTANCE.value] > high_dist_threshold).astype(int)
+        self.high_dist_threshold = df[fenum.LOG_DISTANCE.value].quantile(high_dist_thresholdq)
+        df[fenum.IS_LONG_HAUL.value] = (df[fenum.LOG_DISTANCE.value] > self.high_dist_threshold).astype(int)
 
         df[fenum.LOG_TRIP_DURATION.value]=np.log(df[fenum.TRIP_DURATION.value]) 
 
@@ -383,10 +384,11 @@ class Preprocessing_Pipline():
             )) 
     
             # Highlight long-haul trips (top 15% distance threshold)
-            high_dist_threshold = df[fenum.LOG_DISTANCE.value].quantile(high_dist_threshold)
-            df[fenum.IS_LONG_HAUL.value] = (df[fenum.LOG_DISTANCE.value] > high_dist_threshold).astype(int)
-    
-    
+            df[fenum.IS_LONG_HAUL.value] = (df[fenum.LOG_DISTANCE.value] > self.high_dist_threshold).astype(int)
+
+
+            df[fenum.LOG_TRIP_DURATION.value]=np.log(df[fenum.TRIP_DURATION.value]) 
+                
             if beast_feats: 
                 df = df[fenum.best_features()]
     
@@ -398,7 +400,6 @@ class Preprocessing_Pipline():
                 df = self.__add_landmark_features(df)
     
             if drop_outliayer: 
-                self.outliayer_limts = self.__comput_outliayer_limts(df) 
                 df = self.__apply_outliayer_limts(df) 
     
             return df 
@@ -426,7 +427,7 @@ class Preprocessing_Pipline():
 
         x_scaled = self.scaler.fit_transform(x) 
         if x_val is not None: 
-            x_val_scaled = self.transform(x_val) 
+            x_val_scaled = self.scaler.transform(x_val) 
             return self.scaler, x_scaled, x_val_scaled 
 
         return self.scaler, x_scaled

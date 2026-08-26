@@ -38,6 +38,11 @@ preprocessing:
   best_feats: False
 
 
+model: 
+  name: Ridge 
+  alpha: 1 
+  fit_intercept: True
+
 
 
 
