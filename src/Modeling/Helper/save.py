@@ -1,22 +1,15 @@
-import os
-import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-import pickle
-
-def save_model(model, encode_season, encode_store, poly, scaler, name="Ridge", tyep='val'):
+import joblib
+# save.py
+def save_model(model, encode_season, encode_store, poly, scaler, hdt, outliayer_limts, feature_names, name="Ridge", type='test'):
     model_dict = {
         "model": model,
         "encode_season": encode_season,
         "encode_store": encode_store,
         "poly": poly,
-        "scaler": scaler
+        "scaler": scaler, 
+        "hdt": hdt,
+        "outliayer_limts": outliayer_limts,
+        "feature_names": feature_names
     }
-
-    if type=='val':
-        filename = fr'val_pkl/{name}.pkl'
-    else:
-        filename = fr'{name}.pkl'
-
-    with open(filename, 'wb') as file:
-        pickle.dump(model_dict, file)
+    filename = f'val_pkl/{name}.pkl' if type == 'val' else f'{name}.pkl'
+    joblib.dump(model_dict, filename)

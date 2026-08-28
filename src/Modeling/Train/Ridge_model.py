@@ -17,7 +17,8 @@ from Config.load import load_config
 from Modeling.Helper.eval import evaluate_model  
 from log.apply_log import log_result
 from Modeling.Helper.prepare import Preparing
-from Modeling.Helper.save import save_model
+from Modeling.Helper.save import save_model 
+import pickle
 
 
 config = load_config() 
@@ -58,16 +59,23 @@ if __name__ == '__main__':
 
     train = Train(x_train, x_val, t_train, t_val)
     model = train.try_ridge()
-    evaluate_model(model, x_train, t_train, 'train')
-    evaluate_model(model, x_val, t_val, 'val')
+    model_dict = {
+            "model": model,
+            "encode_season": encode_season,
+            "encode_store": encode_store,
+            "poly": poly,
+            "scaler": scaler
+        }
+    with open('Ridge.pkl', 'wb') as file:
+         pickle.dump(model_dict, file)
 
     print("Successful")
-    save_model(model=model, 
-               encode_season=encode_season,
-               encode_store=encode_store, 
-               poly=poly,
-               scaler=scaler, 
-               name="Ridge",
-               tyep='val') 
+    # save_model(model=model, 
+    #            encode_season=encode_season,
+    #            encode_store=encode_store, 
+    #            poly=poly,
+    #            scaler=scaler, 
+    #            name="Ridge",
+    #            tyep='val') 
     
     

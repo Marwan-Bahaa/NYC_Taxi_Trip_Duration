@@ -11,7 +11,7 @@ from Enum.path_enums import PathEnum as penum
 from Enum.feats_enums import FeatureEnum as fenum  
 from Preprocessing.preprocessing import Preprocessing_Pipline
 train_data_path=penum.TRAIN_PATH.value
-val_data_path=penum.VAL_PATH.value 
+val_data_path=penum.TEST_PATH.value 
 
 class Preparing(): 
     def __init__(self, train_path=train_data_path): 
@@ -20,8 +20,8 @@ class Preparing():
         self.preprocessing_pipline = Preprocessing_Pipline() 
 
     def prepare_data(self): 
-        self.train, lable_encoder_season, lable_encoder_store = self.preprocessing_pipline.fit_transform(self.train) 
-        self.val = self.preprocessing_pipline.transform(self.val, lable_encoder_season=lable_encoder_season, lable_encoder_store=lable_encoder_store) 
+        self.train, lable_encoder_season, lable_encoder_store, hdt, outliayerlimts = self.preprocessing_pipline.fit_transform(self.train) 
+        self.val = self.preprocessing_pipline.transform(self.val, lable_encoder_season=lable_encoder_season, lable_encoder_store=lable_encoder_store, hdt=hdt, outliayerLimits=outliayerlimts) 
 
         t_train = self.train[fenum.LOG_TRIP_DURATION.value] 
         t_val = self.val[fenum.LOG_TRIP_DURATION.value] 
@@ -32,7 +32,7 @@ class Preparing():
         poly, x_train, x_val = self.preprocessing_pipline.polynomial_feature(x=x_train, x_val=x_val)
 
         scaler, x_train, x_val = self.preprocessing_pipline.scaling(x=x_train, x_val=x_val) 
-        return x_train, x_val, t_train, t_val, lable_encoder_season, lable_encoder_store, poly, scaler 
+        return x_train, x_val, t_train, t_val, lable_encoder_season, lable_encoder_store, poly, scaler, hdt, outliayerlimts 
 
 
 

@@ -1,140 +1,3 @@
-'''
-  
-
-           ======feats preprocessing======= 
-drop_cols = [
-    'id',                    # Unique identifier (no predictive signal)
-    'pickup_datetime',       # Raw datetime string (already extracted into pickup_hour, etc.)
-    'store_and_fwd_flag',    # Raw text flag (replaced by store_and_fwd_flag_enc)
-    'trip_duration',         # Raw target variable in seconds (using log_trip_duration)
-    'log_trip_duration'      # Transformed target variable (used as y, not X) 
-
-] 
-
-
-onehot_encode_cols = [
-    'vendor_id',             # Provider ID (2 unique values)
-    'season',                # Season of the year
-    'pickup_month',          # Month of trip (1 through 12)
-    'pickup_dayofweek'       # Day of the week (0 through 6)
-    'pickup_year',           # Year of trip
-]
-
-scale_cols = [
-    'passenger_count',
-    
-    'pickup_longitude',
-    'pickup_latitude',
-    'dropoff_longitude',
-    'dropoff_latitude',
-    
-    'haversine_distance',
-    'log_distance',
-    'scaled_log_dist',
-    
-    'pickup_hour',
-
-    'pickup_dist_to_center',
-    'dropoff_dist_to_center',
-    'pickup_dist_jfk',
-    'dropoff_dist_jfk',
-    'pickup_dist_lga',
-    'dropoff_dist_lga',
-    'pickup_dist_ewr',
-    'dropoff_dist_ewr',
-    'pickup_dist_times_square',
-    'dropoff_dist_times_square'
-] 
-
-passthrough_binary_cols = [
-    
-    'store_and_fwd_flag_enc',
-    'is_weekend',
-    'is_late_night',
-    'is_group_trip',
-
-    'weekend_night_group',
-    
-    'is_rush_hour',
-    'is_long_haul',
-    
-    'is_airport_jfk',
-    'is_airport_lga',
-    'is_airport_ewr',
-    'is_any_airport'
-]
-
-
-                        ==================feats to Add====================
-# 1. Target Transformation
-target_features = [
-    'log_trip_duration'
-]
-
-# 2. Basic Geospatial & Distance Features
-basic_geospatial_features = [
-    'log_haversine_distance',
-    'is_long_haul'
-]
-
-
-# 3. Landmark 
-landmark_distance_features = [
-    'pickup_dist_jfk',
-    'dropoff_dist_jfk',
-    'pickup_dist_lga',
-    'dropoff_dist_lga',
-    'pickup_dist_ewr',
-    'dropoff_dist_ewr',
-    'pickup_dist_times_square',
-    'dropoff_dist_times_square'
-]
-
-
-# 4. Airport Binary Indicators
-airport_indicator_features = [
-    'is_airport_jfk',
-    'is_airport_lga',
-]
-
-# 5. Temporal Features
-temporal_features = [
-    'pickup_hour',
-    'pickup_dayofweek',
-    'pickup_month',
-    'is_weekend',
-    'is_late_night',
-    'season'
-]
-
-# 6. Categorical Encodings & Grouping Flags
-encoding_and_grouping_features = [
-    'store_and_fwd_flag_enc',
-    'is_group_trip'
-]
-
-
-
-# Combined Master List of Engineered Features (Excluding Target)
-all_engineered_features = (
-    basic_geospatial_features +
-    landmark_distance_features +
-    airport_indicator_features +
-    temporal_features +
-    encoding_and_grouping_features
-)
-
-#drop feats no effect
-[
-'pickup_dist_to_center' 
-'dropoff_dist_to_center'
- 'pickup_dist_ewr' 
- 'season_Summer'
- 'store_and_fwd_flag_enc' 
- ]
-
-'''
-
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -182,10 +45,6 @@ land_times_square_lat = config['preprocessing']['nyc_landmarks']['times_square']
 land_times_square_long = config['preprocessing']['nyc_landmarks']['times_square']['longitude'] 
 
 
-
-# Highlight long-haul trips (top 15% distance threshold)
-# high_dist_threshold = df['haversine_distance'].quantile(0.85)
-# df['is_long_haul'] = (df['haversine_distance'] > high_dist_threshold).astype(int)
 
 
 class Preprocessing_Pipline(): 
@@ -269,10 +128,6 @@ class Preprocessing_Pipline():
             
        
     def fit_transform(self, df:pd.DataFrame): 
-        '''
-            datetime 
-
-        '''
         df = df.copy() 
 
         df[fenum.PICKUP_DATETIME.value] = pd.to_datetime(df[fenum.PICKUP_DATETIME.value]) 
@@ -336,11 +191,14 @@ class Preprocessing_Pipline():
             self.outliayer_limts = self.__comput_outliayer_limts(df) 
             df = self.__apply_outliayer_limts(df) 
 
-        return df, self.lable_encoder_season, self.lable_encoder_store        
+        return df, self.lable_encoder_season, self.lable_encoder_store, self.high_dist_threshold, self.outliayer_limts        
 
 
 
-    def transform(self, df:pd.DataFrame, lable_encoder_season,  lable_encoder_store): 
+    def transform(self, df:pd.DataFrame, lable_encoder_season,  lable_encoder_store, hdt, outliayerLimits): 
+            if outliayerLimits is not None: 
+                self.outliayer_limts = outliayerLimits 
+
             df = df.copy() 
     
             df[fenum.PICKUP_DATETIME.value] = pd.to_datetime(df[fenum.PICKUP_DATETIME.value]) 
@@ -384,7 +242,7 @@ class Preprocessing_Pipline():
             )) 
     
             # Highlight long-haul trips (top 15% distance threshold)
-            df[fenum.IS_LONG_HAUL.value] = (df[fenum.LOG_DISTANCE.value] > self.high_dist_threshold).astype(int)
+            df[fenum.IS_LONG_HAUL.value] = (df[fenum.LOG_DISTANCE.value] > hdt).astype(int)
 
 
             df[fenum.LOG_TRIP_DURATION.value]=np.log(df[fenum.TRIP_DURATION.value]) 
@@ -399,7 +257,7 @@ class Preprocessing_Pipline():
             if add_landmarkb: 
                 df = self.__add_landmark_features(df)
     
-            if drop_outliayer: 
+            if drop_outliayer and self.outliayer_limts: 
                 df = self.__apply_outliayer_limts(df) 
     
             return df 
