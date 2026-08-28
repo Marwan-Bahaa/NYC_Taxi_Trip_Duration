@@ -1,0 +1,48 @@
+RANDOM_STATE: 42 
+
+
+preprocessing: 
+  polynomial: 
+    degree: 2  
+    include_bias: True
+
+  scaling: 
+    option: 2
+
+  haversine_distance: 
+    qthreshold: 0.85  
+
+  nyc_landmarks: 
+    jfk: 
+      latitude: 40.6413
+      longitude: -73.7781 
+   
+    lga: 
+      latitude: 40.7769
+      longitude: -73.8740 
+   
+    ewr: 
+      latitude: 40.6895
+      longitude: -74.1745 
+   
+    times_square: 
+      latitude: 40.7580
+      longitude: -73.9855  
+
+  drop_outliayer: True  
+
+  add_landMark: True 
+
+  drop_feats: True
+
+  best_feats: False
+
+
+model: 
+  name: Ridge 
+  alpha: 1 
+  fit_intercept: True
+
+
+
+
