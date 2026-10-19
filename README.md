@@ -11,53 +11,6 @@ pip3 install -r requirements.txt
 cd  NYC-Taxi-Trip-Duration
 python3 load_test.py
 ```
-## Repo structure and File descriptions
-```
-NYC-Taxi-Trip-Duration/
-├── README.md
-├── requirements.txt
-├── (EDA) New York City Taxi-Trip Duration.ipynb
-├── Trip Duration Prediction Project Report.pdf
-├── load_test.py
-├── train.py
-├── helper.py
-├── prepare.py
-├── history.json
-├── Baseline_model_metadata.json
-├── processed_data/   
-│   └── 0
-│       ├── train.csv.zip
-│       ├── val.csv.zip
-│       └── metadata.json
-│   └── 1
-│       ├── train.csv.zip
-│       ├── val.csv.zip
-│       └── metadata.json
-└── split
-    ├── train.csv.zip
-    ├── test.csv.zip
-    └── submission.csv.zip
-```
-- `README.md`: Contains information about the project, how to set it up, and any other relevant details.
-- `requirements.txt`: Lists all the dependencies required for the project to run.
-- `(EDA) New York City Taxi-Trip Duration.ipynb`: Jupyter notebook containing exploratory data analysis on New York City taxi trip duration.
-- `load_test.py`: Python script for loading test data.
-- `train.py`: Python script for training the model (main script).
-- `helper.py`: Python script containing helper functions used in other scripts.
-- `prepare.py`: Python script for data preparation (Data Versioning).
-- `history.json`: JSON file containing the training history of trained models.
-- `Baseline_model_metadata.json`: JSON file containing metadata about the baseline model.
-- `Trip Duration Prediction Project Report.pdf`: Report summarizes the project.
-- `processed_data/0`: Directory containing processed data for a specific iteration (id) of data processing (data verison).
-  - `train.csv.zip`: Training data in zip format.
-  - `val.csv.zip`: Validation data in zip format.
-  - `metadata.json`: Metadata related to this processed data.
-- `processed_data/1`: Another directory containing processed data for a different verison.
-- `split`: Directory containing data split for training/testing.
-  - `train.csv.zip`: Training data in zip format.
-  - `test.csv.zip`: Test data in zip format.
-  - `submission.csv.zip`: Submission file in zip format.
-- - `model_2024_07_20_14_34_Train_RMSE_0.44_R2_0.70_Test_RMSE_0.44_R2_0.69.pkl`: The baseline model stored as pkl format.
 ## Notes
 
 All the data files are compressed due to GitHub's limitations on pushing larger data files. Please be careful and use appropriate software to decompress and unzip the data files as needed.
